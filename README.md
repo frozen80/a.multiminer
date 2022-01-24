@@ -99,44 +99,67 @@ This is step by step tutorial to compile libmm_gpu_gate.dll with CUDA support fo
 1. Install Chocolatey(the package manager for Windows)
 Open a PowerShell console with admin rights and enter this command:
 
-```Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))```
-
+```sh
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
 Close the shell and reopen it again with admin rights
 
 2. Install Visual Studio Build Tools, VC Tools, CUDA v10.2 and OpenSSL(this step might take a while)
 
-```choco install visualstudio2019buildtools``` -> Answer: A
-```choco install visualstudio2019-workload-vctools``` -> Answer: A
-```choco install cuda --version=10.2.89.20191206``` -> Answer: A
+```sh
+choco install visualstudio2019buildtools
+choco install visualstudio2019-workload-vctools
+choco install cuda --version=10.2.89.20191206
+``` 
+-> Answer: A
+
 (Make sure you have enough space as this package is big, 2.44 GB. This will also install another display driver if you have Nvidia cards on the system, so be careful and reinstall your favorite driver, if you don't want that)
-```setx CUDA_TOOLKIT_ROOT_DIR 'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2' /m```
-```choco install openssl```
-```setx OPENSSL_ROOT_DIR 'C:\Program Files\OpenSSL-Win64' /m```
-Check the installed packages with: ```choco list -lo```
+
+```sh
+setx CUDA_TOOLKIT_ROOT_DIR 'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.2' /m
+choco install openssl
+setx OPENSSL_ROOT_DIR 'C:\Program Files\OpenSSL-Win64' /m
+```
+Check the installed packages with: 
+```sh
+choco list -lo
+```
 
 3. Open a MinGW x64 console and navigate to a.multiminer folder(Ex: cd /D/Dev/a.multiminer-master). Here, create a new folder build_vs and navigate inside it: 
 
-```mkdir build_vs && cd build_vs```
+```sh
+mkdir build_vs && cd build_vs
+```
 
 Depending where you installed MSYS2(Ex: C:\msys2) enter the following command:
 
-```cmake .. -DCMAKE_BUILD_TYPE=Release -Wno-dev -DNO_CUDA=FALSE -DJANSSON_LIBRARIES="c:\msys64\mingw64\lib\libjansson.dll.a" -DCURL_LIBRARY="c:\msys64\mingw64\lib\libcurl.dll.a" -DGMP_LIBRARIES="c:\msys64\mingw64\lib\libgmp.dll.a" -DOpenCL_LIBRARY="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2/lib/x64/OpenCL.lib" -G "Visual Studio 16 2019" -A x64```
+```sh
+cmake .. -DCMAKE_BUILD_TYPE=Release -Wno-dev -DNO_CUDA=FALSE -DJANSSON_LIBRARIES="c:\msys64\mingw64\lib\libjansson.dll.a" -DCURL_LIBRARY="c:\msys64\mingw64\lib\libcurl.dll.a" -DGMP_LIBRARIES="c:\msys64\mingw64\lib\libgmp.dll.a" -DOpenCL_LIBRARY="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2/lib/x64/OpenCL.lib" -G "Visual Studio 16 2019" -A x64
+```
 
 then build the library:
 
-```'/C/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/MSBuild/Current/Bin/MSBuild.exe' a.multiminer.sln -target:mm_gpu_gate -p:Configuration=Release```
+```sh
+'/C/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/MSBuild/Current/Bin/MSBuild.exe' a.multiminer.sln -target:mm_gpu_gate -p:Configuration=Release
+```
 
 rename the library
 
-```mv mm_gpu_gate.dll libmm_gpu_gate.dll```
+```sh
+mv mm_gpu_gate.dll libmm_gpu_gate.dll
+```
 
 If everything is ok you should find a library named **libmm_gpu_gate.dll** in the folder. Copy libmm_gpu_gate.dll to the first build folder(the one without CUDA support and where a.multiminer.exe is located) and overwrite the previous version of the library(the new size is bigger). Test if everything is ok:
 
-```a.multiminer -V```
+```sh
+a.multiminer -V
+```
 
 Start the miner with CUDA support: 
 
-```a.multiminer.exe -a argon2d16000 -o stratum+tcp://pool.address:port -u wallet.worker -p c=ADOT --gpu-id=1 --gpu-batchsize=64 --use-gpu=CUDA -t 2```
+```sh
+a.multiminer.exe -a argon2d16000 -o stratum+tcp://pool.address:port -u wallet.worker -p c=ADOT --gpu-id=1 --gpu-batchsize=64 --use-gpu=CUDA -t 2
+```
 
 Linux Building Process
 ---------------------
